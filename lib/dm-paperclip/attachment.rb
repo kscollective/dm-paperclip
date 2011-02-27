@@ -88,7 +88,8 @@ module Paperclip
       else
         @queued_for_write[:original]   = to_tempfile(uploaded_file)
         instance_write(:file_name,       uploaded_file.original_filename.strip.gsub(/[^\w\d\.\-]+/, '_'))
-        instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
+        #instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
+        instance_write(:content_type,    content_type(uploaded_file.original_filename)
         instance_write(:file_size,       uploaded_file.size.to_i)
         instance_write(:updated_at,      Time.now)
       end
@@ -105,6 +106,21 @@ module Paperclip
       validate
     end
 
+    
+    # Infer the MIME-type of the file from the extension.
+    def content_type(filename)
+      type = (filename.match(/\.(\w+)$/)[1] rescue "octet-stream").downcase
+      case type
+      when %r"jpe?g"                 then "image/jpeg"
+      when %r"tiff?"                 then "image/tiff"
+      when %r"png", "gif", "bmp"     then "image/#{type}"
+      when "txt"                     then "text/plain"
+      when %r"html?"                 then "text/html"
+      when "csv", "xml", "css", "js" then "text/#{type}"
+      else "application/x-#{type}"
+      end
+    end
+    
     # Returns the public URL of the attachment, with a given style. Note that
     # this does not necessarily need to point to a file that your web server
     # can access and can point to an action in your app, if you need fine
