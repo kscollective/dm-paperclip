@@ -9,7 +9,7 @@ module IOStream
     name = object.respond_to?(:original_filename) ? object.original_filename : (object.respond_to?(:path) ? object.path : "stream")
     Rails.logger.info("New tempfile with basename #{File.basename(name)}")
     tempfile = Paperclip::Tempfile.new(File.basename(name))
-    Rails.logger.info("TempFile? #{tempfile}")
+    Rails.logger.info("TempFile? #{tempfile.path}")
     tempfile.binmode
     stream_to(object, tempfile)
   end
